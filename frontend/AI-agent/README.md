@@ -1,0 +1,3 @@
+# Frontend AI Instructions
+
+Frontend-specific guidance for Workscope Nepal. Apply these rules together with the project-wide instructions in the root `AI-agent/` directory.
