@@ -6,7 +6,7 @@ Use this as the frontend entry point for Workscope Nepal.
 
 1. Read the root `README.md`
 2. Read `AI-agent/index.md`
-3. Read `AI-agent/project_plan.md` if the task is about product direction
+3. Read `AI-agent/project_plan.md` only if the task is about product direction
 4. Then check the frontend code and routes
 
 ## Frontend purpose
