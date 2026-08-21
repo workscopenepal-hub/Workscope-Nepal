@@ -1,0 +1,6 @@
+-- This file intentionally contains no default data.
+-- For a controlled initial-admin promotion, run this manually in the SQL editor:
+--   begin;
+--   select set_config('app.initial_admin_user_id', 'EXISTING_AUTH_USER_UUID', false);
+--   select public.promote_initial_admin();
+--   commit;
