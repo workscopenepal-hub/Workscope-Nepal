@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import ProtectedRoute from '../components/ProtectedRoute.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { apiRequest, createAuthHeaders } from '../lib/api.js';
+import { submissionConfig, submitSuggestion } from '../lib/submissions.js';
+import { Field } from '../components/SuggestionModal.jsx';
 
 function SubmissionContent() {
   const { session, profile } = useAuth();
@@ -36,12 +38,7 @@ function SubmissionContent() {
     setSubmitState('submitting');
     setSubmitError(null);
     try {
-      const data = buildSubmissionData(type, formData);
-      const submission = await apiRequest('/api/submissions', {
-        method: 'POST',
-        headers: createAuthHeaders(session),
-        body: JSON.stringify({ type, data }),
-      });
+      const submission = await submitSuggestion(type, formData, session);
       setSubmissions((current) => [submission, ...current]);
       setFormData({});
       setSubmitState('submitted');
@@ -61,41 +58,6 @@ function SubmissionContent() {
     setFormData({});
     setSubmitError(null);
     setSubmitState('idle');
-  }
-
-  function renderSubmissionFields() {
-    if (type === 'company') {
-      return <>
-        <Input label="Company name" value={formData.name || ''} onChange={(value) => updateField('name', value)} required />
-        <Input label="Country" value={formData.country || ''} onChange={(value) => updateField('country', value)} />
-        <Input label="Address" value={formData.address || ''} onChange={(value) => updateField('address', value)} />
-        <Input label="Home page URL" type="url" value={formData.home_page || ''} onChange={(value) => updateField('home_page', value)} />
-        <Input label="Career page URL" type="url" value={formData.career_page || ''} onChange={(value) => updateField('career_page', value)} />
-      </>;
-    }
-
-    if (type === 'opportunity') {
-      return <>
-        <Input label="Opportunity name" value={formData.name || ''} onChange={(value) => updateField('name', value)} required />
-        <TextArea label="Description" value={formData.description || ''} onChange={(value) => updateField('description', value)} maxLength={200} required />
-        <Input label="Company ID (optional)" value={formData.company_id || ''} onChange={(value) => updateField('company_id', value)} />
-        <Input label="Official organizer URL" type="url" value={formData.organizer_url || ''} onChange={(value) => updateField('organizer_url', value)} />
-        <Select label="Opportunity type" value={formData.opportunity_type || ''} onChange={(value) => updateField('opportunity_type', value)} options={['internship', 'fellowship', 'bootcamp', 'traineeship', 'apprenticeship']} />
-        <Select label="Work mode" value={formData.work_mode || ''} onChange={(value) => updateField('work_mode', value)} options={['onsite', 'remote', 'hybrid']} />
-        <label className="flex items-center gap-3 text-sm">
-          <input type="checkbox" checked={Boolean(formData.incentivized)} onChange={(event) => updateField('incentivized', event.target.checked)} />
-          <span>Incentivized opportunity</span>
-        </label>
-      </>;
-    }
-
-    return <>
-      <Input label="Event title" value={formData.title || ''} onChange={(value) => updateField('title', value)} required />
-      <TextArea label="Description" value={formData.description || ''} onChange={(value) => updateField('description', value)} maxLength={200} required />
-      <Input label="Official organizer URL" type="url" value={formData.organizer_url || ''} onChange={(value) => updateField('organizer_url', value)} />
-      <Select label="Event type" value={formData.event_type || ''} onChange={(value) => updateField('event_type', value)} options={['hackathon', 'conference', 'meetup', 'workshop', 'tech_talk', 'webinar']} />
-      <Select label="Event format" value={formData.format || ''} onChange={(value) => updateField('format', value)} options={['online', 'onsite', 'hybrid']} />
-    </>;
   }
 
   return (
@@ -135,10 +97,11 @@ function SubmissionContent() {
                 <select className="w-full rounded-md border border-input bg-background px-3 py-2" value={type} onChange={handleTypeChange}>
                   <option value="company">Company</option>
                   <option value="opportunity">Opportunity</option>
-                  <option value="event">Event</option>
+                    <option value="event">Event</option>
+                    <option value="community">Community</option>
                 </select>
               </label>
-              {renderSubmissionFields()}
+                {submissionConfig[type].fields.map((field) => <Field key={field.key} field={field} value={formData[field.key]} onChange={(value) => updateField(field.key, value)} />)}
               <button className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60" type="submit" disabled={submitState === 'submitting'}>
                 {submitState === 'submitting' ? 'Submitting...' : 'Submit for review'}
               </button>
@@ -159,52 +122,6 @@ function SubmissionContent() {
       </div>
     </section>
   );
-}
-
-function buildSubmissionData(type, values) {
-  if (type === 'company') {
-    const { home_page: homePage, career_page: careerPage, ...companyValues } = values;
-    return {
-      ...companyValues,
-      websites: { home_page: homePage || null, career_page: careerPage || null },
-    };
-  }
-
-  if (type === 'opportunity') {
-    const { opportunity_type: opportunityType, incentivized, work_mode: workMode, ...opportunityValues } = values;
-    if (!opportunityValues.company_id) delete opportunityValues.company_id;
-    return {
-      ...opportunityValues,
-      details: { type: opportunityType || null, incentivized: Boolean(incentivized), work_mode: workMode || null },
-    };
-  }
-
-  const { event_type: eventType, format, ...eventValues } = values;
-  return { ...eventValues, event_type: { type: eventType || null, format: format || null } };
-}
-
-function Input({ label, onChange, ...props }) {
-  return <label className="block text-sm">
-    <span className="mb-2 block text-muted-foreground">{label}</span>
-    <input className="w-full rounded-md border border-input bg-background px-3 py-2" onChange={(event) => onChange(event.target.value)} {...props} />
-  </label>;
-}
-
-function TextArea({ label, onChange, ...props }) {
-  return <label className="block text-sm">
-    <span className="mb-2 block text-muted-foreground">{label}</span>
-    <textarea className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2" onChange={(event) => onChange(event.target.value)} {...props} />
-  </label>;
-}
-
-function Select({ label, options, onChange, ...props }) {
-  return <label className="block text-sm">
-    <span className="mb-2 block text-muted-foreground">{label}</span>
-    <select className="w-full rounded-md border border-input bg-background px-3 py-2" onChange={(event) => onChange(event.target.value)} {...props}>
-      <option value="">Select one</option>
-      {options.map((option) => <option key={option} value={option}>{option.replace('_', ' ')}</option>)}
-    </select>
-  </label>;
 }
 
 function Submissions() {
