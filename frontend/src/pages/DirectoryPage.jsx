@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
+import { useAuth } from '../context/AuthContext.jsx';
+import SuggestionModal from '../components/SuggestionModal.jsx';
 import { apiRequest } from '../lib/api.js';
 import { directoryConfig } from '../lib/directory.js';
-import { handleInternalNavigation } from '../lib/navigation.js';
 
 function DirectoryPage({ resource }) {
   const config = directoryConfig[resource];
+  const { user, loading: authLoading } = useAuth();
   const [items, setItems] = useState([]);
   const [state, setState] = useState('loading');
   const [error, setError] = useState(null);
+  const [suggestionOpen, setSuggestionOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -26,15 +29,24 @@ function DirectoryPage({ resource }) {
     return () => { active = false; };
   }, [resource]);
 
+  function openSuggestion() {
+    if (authLoading) return;
+    if (!user) {
+      window.location.replace('/login');
+      return;
+    }
+    setSuggestionOpen(true);
+  }
+
   return (
     <section className="mx-auto max-w-6xl px-6 py-20 lg:px-8 lg:py-28">
       <div className="border-b border-border pb-8">
         <p className="mb-6 text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground">{config.label}</p>
         <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">{config.title}</h1>
         <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground">{config.description}</p>
-        <a className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground" href="/submissions" onClick={(event) => handleInternalNavigation(event, '/submissions')}>
-          Suggest an entry
-        </a>
+        <button className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground" type="button" onClick={openSuggestion}>
+          {config.suggestionLabel}
+        </button>
       </div>
 
       {state === 'loading' && <p className="py-16 text-sm text-muted-foreground">Loading {config.title.toLowerCase()}...</p>}
@@ -62,6 +74,7 @@ function DirectoryPage({ resource }) {
           ))}
         </div>
       )}
+      {suggestionOpen && <SuggestionModal type={config.submissionType} onClose={() => setSuggestionOpen(false)} onSubmitted={() => {}} />}
     </section>
   );
 }
