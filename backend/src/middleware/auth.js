@@ -26,3 +26,18 @@ export async function requireAdmin(request, response, next) {
   request.profile = profile;
   next();
 }
+
+export async function requireModerator(request, response, next) {
+  const { data: profile, error } = await request.supabase
+    .from('profiles')
+    .select('id, public_id, role')
+    .eq('id', request.user.id)
+    .single();
+
+  if (error || !['admin', 'moderator'].includes(profile?.role)) {
+    return response.status(403).json({ error: 'Moderator access required.' });
+  }
+
+  request.profile = profile;
+  next();
+}

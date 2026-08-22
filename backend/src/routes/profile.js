@@ -11,7 +11,16 @@ export function createProfileRouter() {
       .eq('id', request.user.id)
       .single();
 
-    if (error) return response.status(404).json({ error: 'Profile not found.' });
+    if (error) {
+      if (error.code === 'PGRST116') return response.status(404).json({ error: 'Profile not found.' });
+      console.error('[Profile] Unable to load profile', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
+      return response.status(500).json({ error: 'Unable to load profile.' });
+    }
     response.json(data);
   });
 

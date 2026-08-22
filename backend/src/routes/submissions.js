@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { requireAdmin, requireUser } from '../middleware/auth.js';
+import { requireModerator, requireUser } from '../middleware/auth.js';
 import { submissionTypes, validateSubmission } from '../validation/submissions.js';
 
 const submissionRateLimit = rateLimit({
@@ -35,7 +35,7 @@ export function createSubmissionRouter() {
   router.get('/', requireUser, async (request, response) => {
     const { data: profile } = await request.supabase.from('profiles').select('role').eq('id', request.user.id).single();
     const query = request.supabase.from('submissions').select('*').order('created_at', { ascending: false });
-    const { data, error } = profile?.role === 'admin'
+    const { data, error } = ['admin', 'moderator'].includes(profile?.role)
       ? await query
       : await query.eq('submitted_by', request.user.id);
 
@@ -43,7 +43,7 @@ export function createSubmissionRouter() {
     response.json(data);
   });
 
-  router.patch('/:id', requireUser, requireAdmin, async (request, response) => {
+  router.patch('/:id', requireUser, requireModerator, async (request, response) => {
     const { status, review_note: reviewNote } = request.body;
     if (!['approved', 'rejected'].includes(status)) {
       return response.status(400).json({ error: 'Status must be approved or rejected.' });
@@ -59,13 +59,13 @@ export function createSubmissionRouter() {
 
     if (error) return response.status(404).json({ error: 'Submission not found.' });
 
-    if (status === 'rejected') {
+    if (reviewNote) {
       const { error: messageError } = await request.supabase.from('submission_messages').insert({
         submission_id: submission.id,
         recipient_id: submission.submitted_by,
-        message: reviewNote || 'Your submission was rejected.',
+        message: reviewNote,
       });
-      if (messageError) return response.status(500).json({ error: 'Submission updated, but the rejection message failed.' });
+      if (messageError) return response.status(500).json({ error: 'Submission updated, but the review comment failed.' });
     }
 
     response.json(submission);
