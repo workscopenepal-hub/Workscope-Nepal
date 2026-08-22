@@ -91,6 +91,22 @@ The backend exposes API endpoints, applies server-side validation, handles busin
 
 Supabase provides the project's backend infrastructure for authentication and data storage, including PostgreSQL and authentication features such as Google OAuth.
 
+### Roles and moderation
+
+Profiles use three database roles: `user`, `moderator`, and `admin`. New authenticated users receive the `user` role automatically. Moderators and admins can review submissions; only the database owner or a controlled administrator workflow should change a profile role. Role assignment is not exposed through the public application.
+
+To promote an existing profile manually, use the Supabase SQL Editor with the user's UUID from `auth.users`:
+
+```sql
+update public.profiles
+set role = 'moderator'
+where id = 'USER_UUID_HERE';
+```
+
+Use `role = 'admin'` only for the project owner. Normal authenticated users cannot update the role column because profile role updates are revoked from the application database role and protected by the database trigger.
+
+The Supabase access token is short-lived and refreshed automatically by the client session. With the default Supabase settings, access tokens last about one hour; the session normally remains active across page reloads until the user signs out, the refresh token is revoked, or the project session policy expires.
+
 ## Repository structure
 
 ```text
