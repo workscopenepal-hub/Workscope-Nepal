@@ -30,7 +30,7 @@ function Login() {
       <div className="w-full max-w-sm text-center">
         <p className="mb-5 text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground" title="Workscope Nepal: horoscope for your future and career">Workscope Nepal</p>
         <h1 className="text-3xl font-semibold tracking-tight">Sign in to continue</h1>
-        <p className="mt-4 text-sm leading-6 text-muted-foreground">Use your Google account to access the company directory.</p>
+        <p className="mt-4 text-sm leading-6 text-muted-foreground">Use your Google account to contribute to Workscope&apos;s technology ecosystem directory.</p>
         <button
           className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60"
           type="button"
