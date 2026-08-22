@@ -6,6 +6,8 @@ export const directoryConfig = {
     empty: 'No companies have been published yet.',
     fields: (item) => [item.country, item.address].filter(Boolean),
     link: (item) => item.websites?.home_page,
+    suggestionLabel: 'Suggest a Company',
+    submissionType: 'company',
   },
   opportunities: {
     label: 'Career pathways',
@@ -14,6 +16,8 @@ export const directoryConfig = {
     empty: 'No opportunities have been published yet.',
     fields: (item) => [item.details?.type, item.details?.work_mode].filter(Boolean),
     link: (item) => item.organizer_url,
+    suggestionLabel: 'Suggest an Opportunity',
+    submissionType: 'opportunity',
   },
   events: {
     label: 'Gatherings',
@@ -22,6 +26,8 @@ export const directoryConfig = {
     empty: 'No events have been published yet.',
     fields: (item) => [item.event_type?.type, item.event_type?.format].filter(Boolean),
     link: (item) => item.organizer_url,
+    suggestionLabel: 'Suggest an Event',
+    submissionType: 'event',
   },
   communities: {
     label: 'Connect',
@@ -30,5 +36,7 @@ export const directoryConfig = {
     empty: 'No communities have been published yet.',
     fields: () => [],
     link: (item) => item.discord_url,
+    suggestionLabel: 'Suggest a Community',
+    submissionType: 'community',
   },
 };
