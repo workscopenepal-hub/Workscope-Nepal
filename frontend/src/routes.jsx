@@ -3,7 +3,7 @@ import Companies from './pages/Companies.jsx';
 import DirectoryPage from './pages/DirectoryPage.jsx';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
-import Submissions from './pages/Submissions.jsx';
+import Profile from './pages/Profile.jsx';
 
 export const routes = {
   '/': Home,
@@ -13,5 +13,6 @@ export const routes = {
   '/opportunities': () => <DirectoryPage resource="opportunities" />,
   '/events': () => <DirectoryPage resource="events" />,
   '/communities': () => <DirectoryPage resource="communities" />,
-  '/submissions': Submissions,
+  '/submissions': Profile,
+  '/profile': Profile,
 };
