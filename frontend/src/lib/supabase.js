@@ -9,4 +9,10 @@ console.info('[Supabase] Client configuration', {
 	projectRef: supabaseUrl?.match(/^https:\/\/([^.]+)\.supabase\.co$/)?.[1] ?? null,
 });
 
-export const supabase = createClient(supabaseUrl, supabasePublishableKey);
+export const supabase = createClient(supabaseUrl, supabasePublishableKey, {
+	auth: {
+		autoRefreshToken: true,
+		persistSession: true,
+		detectSessionInUrl: true,
+	},
+});
