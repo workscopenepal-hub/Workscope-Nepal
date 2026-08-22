@@ -28,7 +28,7 @@ function Login() {
   return (
     <section className="mx-auto flex min-h-[calc(100vh-81px)] max-w-6xl items-center justify-center px-6 py-20 lg:px-8">
       <div className="w-full max-w-sm text-center">
-        <p className="mb-5 text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground">Workscope Nepal</p>
+        <p className="mb-5 text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground" title="Workscope Nepal: horoscope for your future and career">Workscope Nepal</p>
         <h1 className="text-3xl font-semibold tracking-tight">Sign in to continue</h1>
         <p className="mt-4 text-sm leading-6 text-muted-foreground">Use your Google account to access the company directory.</p>
         <button
