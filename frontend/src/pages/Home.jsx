@@ -3,7 +3,7 @@ function Home() {
     <section className="mx-auto max-w-6xl px-6 py-20 lg:px-8 lg:py-28">
       <div className="max-w-3xl">
         <p className="mb-6 text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Workscope Nepal
+          <span title="Workscope Nepal: horoscope for your future and career">Workscope Nepal</span>
         </p>
         <h1 className="max-w-2xl text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">
           A clearer view of Nepal&apos;s technology workplaces.
